@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -545,13 +546,13 @@ function rEntrenamiento(){
       <span style="font-size:13px;color:var(--purple)">✦</span>
       <div style="flex:1">
         <div style="font-size:11px;color:var(--purple);margin-bottom:4px;font-weight:500">API Key de Claude (se usa para análisis de fotos)</div>
-        <input type="password" placeholder="sk-ant-..." value="${API_KEY}" oninput="API_KEY=this.value" style="background:var(--bg3);border:1px solid rgba(155,127,232,.3);border-radius:5px;padding:5px 9px;font-size:12px;color:var(--text);font-family:monospace;outline:none;width:100%"/>
+        <input type="password" placeholder="sk-ant-..." value="${API_KEY}" oninput="saveApiKey(this.value)" style="background:var(--bg3);border:1px solid rgba(155,127,232,.3);border-radius:5px;padding:5px 9px;font-size:12px;color:var(--text);font-family:monospace;outline:none;width:100%"/>
       </div>
       <span style="font-size:11px;color:${API_KEY?'var(--green)':'var(--text3)'}">${API_KEY?'✓ Activa':'Sin clave'}</span>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:12px">
       <div class="tabs" style="max-width:380px">${tabs}</div>
-      <div style="font-size:12px;color:var(--text3)">${allTrained} de ${total} platos con datos cargados</div>
+      <div style="display:flex;align-items:center;gap:10px"><div style="font-size:12px;color:var(--text3)">${allTrained} de ${total} platos con datos cargados</div><button class="btn btn-d bsm" onclick="lsClear()" title="Borrar todos los datos guardados">🗑 Resetear datos</button></div>
     </div>
     <div class="g3">${cards}</div>`;
 }
@@ -897,7 +898,157 @@ Devolvé SOLO JSON sin texto adicional:
   CAM.step='done';renderCam();
 }
 
+// ─── PERSISTENCIA localStorage ─────────────────────────────────────────────
+const LS_KEYS={dishes:'jaka_dishes',training:'jaka_training',photos:'jaka_photos',challenges:'jaka_challenges',apikey:'jaka_apikey'};
+
+function lsSave(){
+  try{
+    localStorage.setItem(LS_KEYS.dishes, JSON.stringify(DISHES));
+    localStorage.setItem(LS_KEYS.training, JSON.stringify(TRAINING));
+    localStorage.setItem(LS_KEYS.photos, JSON.stringify(PHOTOS));
+    localStorage.setItem(LS_KEYS.challenges, JSON.stringify(CHALLENGES));
+    localStorage.setItem(LS_KEYS.apikey, API_KEY);
+  }catch(e){console.warn('localStorage lleno o no disponible',e);}
+}
+
+function lsLoad(){
+  try{
+    const d=localStorage.getItem(LS_KEYS.dishes);
+    if(d){const parsed=JSON.parse(d);Object.assign(DISHES,parsed);}
+
+    const t=localStorage.getItem(LS_KEYS.training);
+    if(t){const parsed=JSON.parse(t);Object.assign(TRAINING,parsed);}
+
+    const p=localStorage.getItem(LS_KEYS.photos);
+    if(p){PHOTOS.length=0;JSON.parse(p).forEach(x=>PHOTOS.push(x));}
+
+    const c=localStorage.getItem(LS_KEYS.challenges);
+    if(c){CHALLENGES.length=0;JSON.parse(c).forEach(x=>CHALLENGES.push(x));}
+
+    const k=localStorage.getItem(LS_KEYS.apikey);
+    if(k) API_KEY=k;
+  }catch(e){console.warn('Error leyendo localStorage',e);}
+}
+
+function lsClear(){
+  if(!confirm('¿Borrar todos los datos guardados? Esto no se puede deshacer.')) return;
+  Object.values(LS_KEYS).forEach(k=>localStorage.removeItem(k));
+  location.reload();
+}
+
+// Mostrar toast de guardado
+function showToast(msg='Guardado'){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;animation:fi .2s ease;pointer-events:none';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2000);
+}
+
+// ─── PATCH funciones que modifican datos ───────────────────────────────────
+
+// Guardar plato nuevo
+const _addDishModal_orig = addDishModal;
+function addDishModal(){
+  const b=BRANDS.find(x=>x.id===PLATOS_TAB);
+  document.getElementById('genInner').innerHTML=`
+    <div class="mh"><span class="mt2">Agregar plato — ${b?.emoji} ${b?.name}</span><button class="mc" onclick="closeModal('genModal')">×</button></div>
+    <div class="fg"><label class="fl">Nombre del plato</label><input class="fi" id="new-dish-name" placeholder="Ej: Bowl Mediterráneo"/></div>
+    <div class="fg"><label class="fl">Gramaje total estándar</label><input class="fi" id="new-dish-gramaje" placeholder="Ej: 380g"/></div>
+    <button class="btn btn-p" style="width:100%;justify-content:center" onclick="saveDish()">Guardar plato</button>`;
+  document.getElementById('genModal').style.display='flex';
+}
+
+function saveDish(){
+  const nombre=document.getElementById('new-dish-name')?.value.trim();
+  const gramaje=document.getElementById('new-dish-gramaje')?.value.trim();
+  if(!nombre){alert('Ingresá el nombre del plato');return;}
+  if(!gramaje){alert('Ingresá el gramaje');return;}
+  const newDish={id:'d'+Date.now(),name:nombre,ref:'🍽',g:gramaje};
+  if(!DISHES[PLATOS_TAB]) DISHES[PLATOS_TAB]=[];
+  DISHES[PLATOS_TAB].push(newDish);
+  lsSave();
+  closeModal('genModal');
+  showToast('Plato guardado ✓');
+  render();
+}
+
+// Guardar challenge nuevo
+function saveChallenge(){
+  const tipo=document.querySelector('#ch-tipo-group .sel')?.textContent.trim()||'manual';
+  const local=document.getElementById('ch-local')?.value;
+  const brand=document.getElementById('ch-brand')?.value;
+  const desc=document.getElementById('ch-desc')?.value.trim();
+  const expires=document.getElementById('ch-expires')?.value;
+  const urgency=document.getElementById('ch-urgency')?.value.toLowerCase();
+  if(!local||!brand){alert('Seleccioná local y marca');return;}
+  const typeMap={'⏱ ventana':'ventana','⚡ sorpresa':'sorpresa','📦 delivery':'delivery','✎ manual':'manual'};
+  const typeKey=Object.entries(typeMap).find(([k])=>tipo.toLowerCase().includes(k.split(' ')[1]))?.[1]||'manual';
+  CHALLENGES.push({id:'ch'+Date.now(),type:typeKey,label:tipo,desc:desc||'Subir foto del plato',local,brand,expires:expires||'18:00',urgency:urgency||'media'});
+  lsSave();
+  closeModal('genModal');
+  showToast('Challenge creado ✓');
+  render();
+}
+
+// Parchear saveAndClose para que también persista
+const _saveAndClose_orig=saveAndClose;
+function saveAndClose(){
+  lsSave();
+  closeModal('trainModal');
+  showToast('Entrenamiento guardado ✓');
+  render();
+}
+
+// Parchear addIngr para persistir
+const _addIngr_orig=addIngr;
+function addIngr(){
+  TRAINING[EDIT_TRAIN].ingredientes.push({id:uid(),nombre:'',gramaje:50,tolerancia:15,visible:true});
+  lsSave();
+  renderTrainModal();
+}
+
+// Parchear removeIngr
+const _removeIngr_orig=removeIngr;
+function removeIngr(id){
+  TRAINING[EDIT_TRAIN].ingredientes=TRAINING[EDIT_TRAIN].ingredientes.filter(i=>i.id!==id);
+  lsSave();
+  renderTrainModal();
+}
+
+// Guardar fotos de análisis cuando se cierra el modal de cámara con resultado
+const _closeModal_orig=closeModal;
+function closeModal(id){
+  if(id==='camModal'){
+    if(CAM.step==='done'&&CAM.result){
+      // Guardar la foto analizada
+      const d=dish(CAM.brand,CAM.dish);
+      PHOTOS.unshift({
+        id:'p'+Date.now(),
+        localId:'loc3',
+        brandId:CAM.brand,
+        dishId:CAM.dish,
+        ts:now2(),
+        score:CAM.result.score_total,
+        ch:CAM.challenge?.type||'manual',
+        an:{p:CAM.result.presentacion,g:CAM.result.gramaje,c:CAM.result.consistencia,a:CAM.result.anomalias},
+        comment:CAM.result.comentario,
+      });
+      lsSave();
+    }
+    if(VID_STREAM){VID_STREAM.getTracks().forEach(t=>t.stop());VID_STREAM=null;}
+  }
+  document.getElementById(id).style.display='none';
+}
+
+// Guardar API key cuando cambia
+function saveApiKey(val){
+  API_KEY=val;
+  lsSave();
+}
+
 // ─── INIT ──────────────────────────────────────────────────────────────────
+lsLoad();
 document.getElementById('ps').textContent=`Grupo Jaka · ${today}`;
 renderSUI();render();
 </script>
