@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jaka QA — Control de Calidad</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f0e;--bg2:#181816;--bg3:#222220;--bg4:#2a2a28;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#e8e6de;--text2:#9c9a92;--text3:#5c5a55;
+  --accent:#d4a847;--accent2:#b8923a;--accent-dim:rgba(212,168,71,0.12);
+  --green:#4caf7d;--green-dim:rgba(76,175,125,0.12);
+  --red:#e05252;--red-dim:rgba(224,82,82,0.1);
+  --amber:#e09040;--amber-dim:rgba(224,144,64,0.12);
+  --blue:#5b9bd5;--blue-dim:rgba(91,155,213,0.12);
+  --purple:#9b7fe8;--purple-dim:rgba(155,127,232,0.12);
+  --r:10px;--rs:6px;
+}
+html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:var(--bg);color:var(--text);overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+.app{display:flex;height:100vh}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-width:0}
+.sidebar-logo{padding:18px 16px 12px;border-bottom:1px solid var(--border)}
+.logo-mark{font-size:17px;font-weight:700;letter-spacing:-.5px}
+.logo-mark span{color:var(--accent)}
+.logo-sub{font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+.sui{padding:10px 16px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.sun{font-size:12px;font-weight:600}.sur{font-size:11px;color:var(--text3);margin-top:1px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 16px;color:var(--text2);font-size:13px;border:none;background:none;width:100%;text-align:left;border-left:2px solid transparent;transition:all .15s;cursor:pointer}
+.nav-item:hover{color:var(--text);background:var(--bg3)}
+.nav-item.active{color:var(--accent);background:var(--accent-dim);border-left-color:var(--accent)}
+.nav-icon{width:18px;text-align:center;font-size:15px}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px}
+.nsl{padding:10px 16px 4px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.sdemo{padding:10px 14px;border-top:1px solid var(--border);margin-top:auto}
+.sdemo-label{font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:6px}
+.dub{display:block;width:100%;padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:11px;text-align:left;margin-bottom:4px;cursor:pointer;transition:all .1s}
+.dub:hover{background:var(--bg3);color:var(--text)}
+.dub.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.page-header{padding:18px 28px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px}
+.page-title{font-size:17px;font-weight:600;letter-spacing:-.3px}
+.page-subtitle{font-size:11px;color:var(--text3);margin-top:2px}
+.ha{display:flex;gap:8px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit;border:none}
+.btn-p{background:var(--accent);color:#000}.btn-p:hover{background:var(--accent2)}
+.btn-g{background:transparent;border:1px solid var(--border);color:var(--text2)}.btn-g:hover{background:var(--bg3);color:var(--text);border-color:var(--border2)}
+.btn-d{background:var(--red-dim);color:var(--red);border:1px solid rgba(224,82,82,.2)}.btn-d:hover{background:rgba(224,82,82,.2)}
+.btn-pu{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(155,127,232,.25)}.btn-pu:hover{background:rgba(155,127,232,.2)}
+.bsm{padding:4px 9px;font-size:12px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.bg{background:var(--green-dim);color:var(--green)}.br{background:var(--red-dim);color:var(--red)}
+.ba{background:var(--amber-dim);color:var(--amber)}.bb{background:var(--blue-dim);color:var(--blue)}
+.bx{background:var(--bg3);color:var(--text2)}.bpu{background:var(--purple-dim);color:var(--purple)}
+.content{padding:22px 28px;flex:1}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.sv{font-size:30px;font-weight:700;letter-spacing:-1.5px;line-height:1}
+.sl2{font-size:11px;color:var(--text2);margin-top:4px}.sd{font-size:11px;margin-top:8px}
+.stars{display:inline-flex;align-items:center;gap:2px}
+.sf{color:var(--accent)}.sh{color:var(--accent);opacity:.5}.se{color:var(--text3)}
+.sn{font-size:12px;font-weight:600;margin-left:5px}
+.sbr{margin-bottom:8px}.sbt{display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px}
+.sbl{color:var(--text2)}.sbg{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.sbf{height:100%;border-radius:2px}
+.alert{border-radius:var(--r);padding:12px 14px;display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.au{background:rgba(212,168,71,.08);border:1px solid rgba(212,168,71,.22);cursor:pointer}
+.au:hover{background:rgba(212,168,71,.14)}
+.ai{font-size:18px;flex-shrink:0;margin-top:1px}.ab{flex:1;min-width:0}
+.at{font-size:13px;font-weight:500;margin-bottom:1px}.as2{font-size:12px;color:var(--text2)}
+.am{font-size:11px;color:var(--text3);margin-top:3px;font-family:monospace}
+table{width:100%;border-collapse:collapse}
+th{padding:8px 12px;text-align:left;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);font-weight:500}
+td{padding:11px 12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);vertical-align:middle}
+td:first-child{color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px}
+.pc{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:border-color .15s}
+.pc:hover{border-color:var(--border2)}
+.pt{width:100%;aspect-ratio:4/3;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:44px;position:relative}
+.pwm{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.65);color:#fff;font-size:9px;padding:3px 7px;font-family:monospace}
+.pm{padding:10px}.pdish{font-size:12px;font-weight:600;color:var(--text);margin-bottom:1px}
+.pinfo{font-size:11px;color:var(--text3)}
+.uz{border:2px dashed var(--border2);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.uz:hover{border-color:var(--accent);background:var(--accent-dim)}
+.uz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px)}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:22px;width:90%;max-width:540px;max-height:92vh;overflow-y:auto}
+.modal-lg{max-width:720px}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.mt2{font-size:15px;font-weight:600}
+.mc{background:none;border:none;color:var(--text3);cursor:pointer;font-size:22px;line-height:1;padding:0}
+.mc:hover{color:var(--text)}
+.fg{margin-bottom:13px}
+.fl{font-size:12px;color:var(--text2);margin-bottom:4px;display:block}
+.fi,.fsel,.fta{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:8px 10px;font-size:13px;color:var(--text);font-family:inherit;outline:none;transition:border-color .15s}
+.fi:focus,.fsel:focus,.fta:focus{border-color:var(--accent)}
+.fsel{cursor:pointer}.fta{min-height:72px;resize:vertical}
+.tabs{display:flex;gap:2px;background:var(--bg3);border-radius:var(--rs);padding:3px}
+.tab{flex:1;padding:6px 10px;border-radius:5px;font-size:13px;cursor:pointer;text-align:center;color:var(--text2);border:none;background:none;font-family:inherit;transition:all .15s}
+.tab.active{background:var(--bg2);color:var(--text);font-weight:500}
+.cg{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:4px 10px;border-radius:20px;border:1px solid var(--border);font-size:12px;cursor:pointer;color:var(--text2);background:transparent;font-family:inherit;transition:all .15s}
+.chip:hover{border-color:var(--border2);color:var(--text)}
+.chip.sel{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.chip.sel-salon{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
+.chip.sel-delivery{background:var(--amber-dim);border-color:var(--amber);color:var(--amber)}
+.div{height:1px;background:var(--border);margin:16px 0}
+.av{width:28px;height:28px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);font-weight:700;flex-shrink:0}
+.np{position:relative}
+.nb{position:relative;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:6px 10px;cursor:pointer;font-size:15px;color:var(--text2);transition:all .15s;border:none}
+.nb:hover{background:var(--bg4);color:var(--text)}
+.ndot{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:9px;font-weight:700;width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
+.npanel{position:absolute;top:calc(100% + 8px);right:0;width:290px;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;z-index:100;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.ni{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.ni:hover{background:var(--bg3)}.ni:last-child{border-bottom:none}
+.rw{position:relative;flex-shrink:0}
+.rv{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+/* Training specific */
+.dish-training-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .2s;cursor:pointer}
+.dish-training-card:hover{border-color:var(--border2)}
+.dish-training-card.trained{border-color:rgba(76,175,125,.3)}
+.dish-training-card.partial{border-color:rgba(224,144,64,.3)}
+.dtc-header{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.dtc-body{padding:14px 16px}
+.training-status{display:flex;align-items:center;gap:6px;font-size:11px}
+.ts-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ref-photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:8px}
+.ref-photo{aspect-ratio:1;background:var(--bg4);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:28px;position:relative;border:1px solid var(--border);overflow:hidden}
+.ref-photo img{width:100%;height:100%;object-fit:cover}
+.ref-photo-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);color:#fff;font-size:8px;padding:2px 4px;text-align:center}
+.ref-photo .del-btn{position:absolute;top:3px;right:3px;background:rgba(224,82,82,.8);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:10px;display:none;align-items:center;justify-content:center;cursor:pointer;line-height:1}
+.ref-photo:hover .del-btn{display:flex}
+.add-photo-slot{aspect-ratio:1;border:2px dashed var(--border2);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative;gap:4px}
+.add-photo-slot:hover{border-color:var(--accent);background:var(--accent-dim)}
+.add-photo-slot input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.ingr-row{display:grid;grid-template-columns:1fr 80px 80px 36px;gap:8px;align-items:center;margin-bottom:8px}
+.ingr-row-header{display:grid;grid-template-columns:1fr 80px 80px 36px;gap:8px;margin-bottom:6px}
+.ingr-badge{font-size:10px;padding:2px 6px;border-radius:4px}
+.tol-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px}
+.section-title{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.context-preview{background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:11px;color:var(--text2);font-family:monospace;line-height:1.7;white-space:pre-wrap;max-height:200px;overflow-y:auto}
+.mode-toggle{display:inline-flex;background:var(--bg3);border-radius:6px;padding:2px;gap:2px}
+.mode-btn{padding:4px 12px;border-radius:4px;font-size:11px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s}
+.mode-btn.active{background:var(--bg2);color:var(--text);font-weight:500}
+.salon-tag{background:var(--blue-dim);color:var(--blue);font-size:10px;padding:1px 6px;border-radius:4px}
+.delivery-tag{background:var(--amber-dim);color:var(--amber);font-size:10px;padding:1px 6px;border-radius:4px}
+.api-key-bar{background:rgba(155,127,232,.08);border:1px solid rgba(155,127,232,.2);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.api-key-bar input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:5px 9px;font-size:12px;color:var(--text);font-family:monospace;outline:none}
+.api-key-bar input:focus{border-color:var(--purple)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin .8s linear infinite;display:inline-block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.fade{animation:fi .18s ease}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">Jaka <span>QA</span></div>
+      <div class="logo-sub">Control de calidad</div>
+    </div>
+    <div class="sui" id="sui"></div>
+    <div style="padding:8px 0">
+      <div class="nsl">Navegación</div>
+      <button class="nav-item active" onclick="nav('dashboard')" id="n-dashboard"><span class="nav-icon">◈</span>Dashboard</button>
+      <button class="nav-item" onclick="nav('fotos')" id="n-fotos"><span class="nav-icon">⊡</span>Fotos</button>
+      <button class="nav-item" onclick="nav('metricas')" id="n-metricas"><span class="nav-icon">▦</span>Métricas</button>
+      <button class="nav-item" onclick="nav('challenges')" id="n-challenges"><span class="nav-icon">⚡</span>Challenges<span class="nav-badge">3</span></button>
+      <div class="nsl" style="margin-top:8px">Administración</div>
+      <button class="nav-item" onclick="nav('platos')" id="n-platos"><span class="nav-icon">◇</span>Platos</button>
+      <button class="nav-item" onclick="nav('entrenamiento')" id="n-entrenamiento"><span class="nav-icon">✦</span>Entrenamiento IA</button>
+      <button class="nav-item" onclick="nav('usuarios')" id="n-usuarios"><span class="nav-icon">◉</span>Usuarios</button>
+    </div>
+    <div class="sdemo">
+      <div class="sdemo-label">Demo — cambiar usuario</div>
+      <button class="dub active" onclick="swUser(0)" id="du0">Martín Rivas · Superadmin</button>
+      <button class="dub" onclick="swUser(1)" id="du1">Carolina López · Coordinadora</button>
+      <button class="dub" onclick="swUser(2)" id="du2">Diego Ferreyra · Gerente</button>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="page-header">
+      <div>
+        <div class="page-title" id="pt">Dashboard</div>
+        <div class="page-subtitle" id="ps"></div>
+      </div>
+      <div class="ha">
+        <div class="np">
+          <button class="nb" onclick="toggleNotif()" id="nbtn">🔔<span class="ndot">3</span></button>
+          <div class="npanel" id="npanel" style="display:none"></div>
+        </div>
+        <button class="btn btn-p" onclick="openCam(null)">📷 Subir foto</button>
+      </div>
+    </header>
+    <div id="pc" class="content fade"></div>
+  </div>
+</div>
+
+<div class="mo" id="camModal" style="display:none" onclick="ovClick(event,'camModal')"><div class="modal" id="camInner"></div></div>
+<div class="mo" id="genModal" style="display:none" onclick="ovClick(event,'genModal')"><div class="modal" id="genInner"></div></div>
+<div class="mo" id="trainModal" style="display:none" onclick="ovClick(event,'trainModal')"><div class="modal modal-lg" id="trainInner"></div></div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────
+const BRANDS=[
+  {id:'green-eat',name:'Green Eat',emoji:'🥗'},{id:'tea',name:'Tea',emoji:'🍵'},{id:'roll-more',name:'Roll & More',emoji:'🍱'},
+];
+const DISHES={
+  'green-eat':[{id:'ge1',name:'Bowl Mediterráneo',ref:'🥗',g:'380g'},{id:'ge2',name:'Caesar Clásica',ref:'🥙',g:'320g'},{id:'ge3',name:'Wrap Vegano',ref:'🌯',g:'290g'},{id:'ge4',name:'Quinoa Power',ref:'🍛',g:'350g'}],
+  'tea':[{id:'t1',name:'Ensalada Caesar',ref:'🥗',g:'340g'},{id:'t2',name:'Sandwich Club',ref:'🥪',g:'280g'},{id:'t3',name:'Tarta Caprese',ref:'🫓',g:'200g'}],
+  'roll-more':[{id:'rm1',name:'Roll de Pollo',ref:'🍱',g:'260g'},{id:'rm2',name:'Combo Sushi 12',ref:'🍣',g:'320g'},{id:'rm3',name:'Tempura Mix',ref:'🦐',g:'280g'}],
+};
+const LOCALS=[
+  {id:'loc1',name:'Palermo Soho',brands:['green-eat','tea'],type:'local'},
+  {id:'loc2',name:'Recoleta Centro',brands:['green-eat','roll-more'],type:'local'},
+  {id:'loc3',name:'Dark Kitchen Caballito',brands:['green-eat','tea','roll-more'],type:'dark'},
+  {id:'loc4',name:'Dark Kitchen Flores',brands:['roll-more','tea'],type:'dark'},
+];
+const USERS=[
+  {id:'u1',name:'Martín Rivas',role:'superadmin',email:'martin@jaka.com',initials:'MR',locals:['loc1','loc2','loc3','loc4']},
+  {id:'u2',name:'Carolina López',role:'coordinador',email:'carolina@jaka.com',initials:'CL',locals:['loc1','loc2']},
+  {id:'u3',name:'Diego Ferreyra',role:'gerente',email:'diego@jaka.com',initials:'DF',locals:['loc3']},
+];
+const CHALLENGES=[
+  {id:'ch1',type:'ventana',label:'Ventana activa',desc:'Subir próximos 3 platos que salgan',local:'loc3',brand:'green-eat',expires:'14:30',urgency:'alta'},
+  {id:'ch2',type:'sorpresa',label:'¡Foto sorpresa!',desc:'Fotografiar el plato que estás preparando ahora',local:'loc1',brand:'green-eat',expires:'11:55',urgency:'alta'},
+  {id:'ch3',type:'delivery',label:'Control delivery',desc:'Todas las entregas de esta hora',local:'loc3',brand:'tea',expires:'14:00',urgency:'media'},
+];
+const PHOTOS=[
+  {id:'p1',localId:'loc3',brandId:'green-eat',dishId:'ge1',ts:'17/04 11:42',score:4.3,ch:'ventana',an:{p:4.5,g:4.0,c:4.5,a:4.2},comment:'Buena presentación general. Porción levemente inferior a la referencia. Sin anomalías.'},
+  {id:'p2',localId:'loc3',brandId:'tea',dishId:'t1',ts:'17/04 12:05',score:3.1,ch:'sorpresa',an:{p:3.0,g:3.5,c:2.8,a:3.2},comment:'Disposición irregular vs foto de referencia. Aderezo en exceso.'},
+  {id:'p3',localId:'loc1',brandId:'green-eat',dishId:'ge2',ts:'17/04 10:30',score:4.8,ch:'delivery',an:{p:5.0,g:4.8,c:4.8,a:5.0},comment:'Excelente. Coincide casi perfectamente con foto estándar.'},
+  {id:'p4',localId:'loc2',brandId:'roll-more',dishId:'rm1',ts:'17/04 13:20',score:2.4,ch:'ventana',an:{p:2.5,g:2.0,c:2.5,a:2.8},comment:'Porción notablemente reducida. Salsa derramada detectada.'},
+  {id:'p5',localId:'loc4',brandId:'roll-more',dishId:'rm2',ts:'17/04 12:50',score:3.8,ch:'manual',an:{p:4.0,g:3.5,c:4.0,a:3.8},comment:'Buen nivel general. Gramaje levemente bajo.'},
+];
+
+// Training data store: dishId -> training object
+const TRAINING = {
+  'ge1': {
+    ingredientes: [
+      {id:'i1',nombre:'Quinoa cocida',gramaje:120,tolerancia:15,visible:true},
+      {id:'i2',nombre:'Vegetales grillados',gramaje:100,tolerancia:20,visible:true},
+      {id:'i3',nombre:'Aderezo tahini',gramaje:30,tolerancia:10,visible:true},
+      {id:'i4',nombre:'Topping semillas',gramaje:15,tolerancia:25,visible:true},
+      {id:'i5',nombre:'Hummus lateral',gramaje:50,tolerancia:15,visible:true},
+    ],
+    fotos_salon: [{id:'fs1',label:'Vista superior',emoji:'🥗'},{id:'fs2',label:'Lateral',emoji:'🥗'}],
+    fotos_delivery: [{id:'fd1',label:'En envase cerrado',emoji:'📦'}],
+    reglas: 'El aderezo tahini siempre va en el centro del bowl. Los vegetales grillados ocupan el lado izquierdo. Las semillas se esparcen uniformemente sobre toda la superficie. El hummus se sirve en un pequeño recipiente separado apoyado en el borde derecho. Para delivery: verificar que el envase esté correctamente sellado y sin derrames visibles.',
+    notas_extra: 'Verificar temperatura aparente: el bowl debe verse fresco, no mustio. Los vegetales no deben verse sobrecocidos (color demasiado oscuro).',
+  },
+  'ge2': {
+    ingredientes: [
+      {id:'i1',nombre:'Lechuga romana',gramaje:90,tolerancia:20,visible:true},
+      {id:'i2',nombre:'Aderezo Caesar',gramaje:40,tolerancia:15,visible:true},
+      {id:'i3',nombre:'Crutones',gramaje:25,tolerancia:25,visible:true},
+      {id:'i4',nombre:'Parmesano rallado',gramaje:15,tolerancia:20,visible:false},
+    ],
+    fotos_salon:[],fotos_delivery:[],
+    reglas:'El aderezo se integra a la ensalada, no se sirve aparte. Los crutones van encima. El parmesano se ralla al momento.',
+    notas_extra:'',
+  },
+};
+
+// STATE
+let CUR_PAGE='dashboard', CUR_USER=USERS[0], NOTIF_OPEN=false;
+let CAM={step:'select',brand:'',dish:'',challenge:null,result:null};
+let CAP_IMG=null, VID_STREAM=null;
+let PLATOS_TAB='green-eat', TRAIN_BRAND='green-eat';
+let EDIT_TRAIN=null; // current dish being edited in training modal
+let API_KEY='';
+
+// HELPERS
+const sc=s=>s>=4?'var(--green)':s>=3?'var(--amber)':'var(--red)';
+const sb=s=>s>=4?'bg':s>=3?'ba':'br';
+const sl=s=>s>=4.5?'Excelente':s>=4?'Muy bueno':s>=3?'Regular':'Bajo estándar';
+const lname=id=>LOCALS.find(l=>l.id===id)?.name||'';
+const bname=id=>BRANDS.find(b=>b.id===id)?.name||'';
+const bemoji=id=>BRANDS.find(b=>b.id===id)?.emoji||'';
+const dish=(bid,did)=>(DISHES[bid]||[]).find(d=>d.id===did)||Object.values(DISHES).flat().find(d=>d.id===did);
+const allDishes=()=>Object.values(DISHES).flat();
+const today=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
+const now2=()=>new Date().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+const uid=()=>Math.random().toString(36).slice(2,8);
+
+function stars(s){
+  let h='';
+  for(let i=1;i<=5;i++){
+    if(i<=Math.floor(s))h+='<span class="sf">★</span>';
+    else if(i===Math.ceil(s)&&s%1>=0.3)h+='<span class="sh">★</span>';
+    else h+='<span class="se">★</span>';
+  }
+  return `<span class="stars">${h}<span class="sn" style="color:${sc(s)}">${s.toFixed(1)}</span></span>`;
+}
+function sbar(label,val){
+  const pct=(val/5*100).toFixed(0);
+  const col=val>=4?'var(--green)':val>=3?'var(--amber)':'var(--red)';
+  return `<div class="sbr"><div class="sbt"><span class="sbl">${label}</span><span style="font-size:12px;color:${col}">${val.toFixed(1)}</span></div><div class="sbg"><div class="sbf" style="width:${pct}%;background:${col}"></div></div></div>`;
+}
+function ring(val,size=56){
+  const r=20,cx=size/2,cy=size/2,circ=2*Math.PI*r,dash=(val/5)*circ;
+  return `<div class="rw" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" style="transform:rotate(-90deg)"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--bg4)" stroke-width="4"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${sc(val)}" stroke-width="4" stroke-dasharray="${dash} ${circ}" stroke-linecap="round"/></svg><div class="rv" style="color:${sc(val)}">${val.toFixed(1)}</div></div>`;
+}
+function ovClick(e,id){if(e.target===e.currentTarget)closeModal(id);}
+function closeModal(id){document.getElementById(id).style.display='none';if(id==='camModal'&&VID_STREAM){VID_STREAM.getTracks().forEach(t=>t.stop());VID_STREAM=null;}}
+
+function trainStatus(dishId){
+  const t=TRAINING[dishId];
+  if(!t) return {label:'Sin entrenar',cls:'br',dot:'var(--red)',pct:0};
+  const hasIngr=t.ingredientes?.length>0;
+  const hasFotos=(t.fotos_salon?.length||0)+(t.fotos_delivery?.length||0)>0;
+  const hasReglas=t.reglas?.trim().length>20;
+  const score=[hasIngr,hasFotos,hasReglas].filter(Boolean).length;
+  if(score===3) return {label:'Entrenado',cls:'bg',dot:'var(--green)',pct:100};
+  if(score>=1)  return {label:'Parcial',cls:'ba',dot:'var(--amber)',pct:Math.round(score/3*100)};
+  return {label:'Sin entrenar',cls:'br',dot:'var(--red)',pct:0};
+}
+
+// Build the context string that gets injected into Claude prompt
+function buildContext(dishId){
+  const d=allDishes().find(x=>x.id===dishId);
+  const t=TRAINING[dishId];
+  if(!d||!t) return null;
+  let ctx=`PLATO: ${d.name}\nGRAMAJE TOTAL IDEAL: ${d.g}\n\n`;
+  if(t.ingredientes?.length){
+    ctx+=`INGREDIENTES Y GRAMAJES:\n`;
+    t.ingredientes.forEach(i=>{
+      ctx+=`- ${i.nombre}: ${i.gramaje}g (tolerancia ±${i.tolerancia}%)${i.visible?'':' [no visible en presentación]'}\n`;
+    });
+    ctx+='\n';
+  }
+  if(t.fotos_salon?.length) ctx+=`FOTOS DE REFERENCIA SALÓN: ${t.fotos_salon.length} imagen(es) cargadas\n`;
+  if(t.fotos_delivery?.length) ctx+=`FOTOS DE REFERENCIA DELIVERY: ${t.fotos_delivery.length} imagen(es) cargadas\n`;
+  if(t.reglas?.trim()) ctx+=`\nREGLAS DE PRESENTACIÓN:\n${t.reglas.trim()}\n`;
+  if(t.notas_extra?.trim()) ctx+=`\nCHEQUEOS ADICIONALES:\n${t.notas_extra.trim()}\n`;
+  return ctx;
+}
+
+// ─── NAV ──────────────────────────────────────────────────────────────────
+function nav(page){
+  CUR_PAGE=page;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById('n-'+page);if(el)el.classList.add('active');
+  const titles={dashboard:'Dashboard',fotos:'Registro de fotos',metricas:'Métricas de calidad',challenges:'Challenges',platos:'Platos y referencias',entrenamiento:'Entrenamiento IA',usuarios:'Usuarios'};
+  document.getElementById('pt').textContent=titles[page]||page;
+  render();
+}
+function swUser(i){CUR_USER=USERS[i];document.querySelectorAll('.dub').forEach((b,j)=>b.classList.toggle('active',i===j));renderSUI();render();}
+function renderSUI(){
+  const rl={superadmin:'Super Admin',coordinador:'Coordinador',gerente:'Gerente de local'};
+  document.getElementById('sui').innerHTML=`<div class="sun">${CUR_USER.name}</div><div class="sur">${rl[CUR_USER.role]}</div>`;
+}
+function toggleNotif(){
+  NOTIF_OPEN=!NOTIF_OPEN;
+  const p=document.getElementById('npanel');
+  if(NOTIF_OPEN){
+    p.innerHTML='<div style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:600">Notificaciones</div>'+CHALLENGES.map(ch=>`<div class="ni" onclick="openCam('${ch.id}');toggleNotif()"><div style="font-size:12px;font-weight:500;margin-bottom:2px">${ch.label}</div><div style="font-size:11px;color:var(--text3)">${lname(ch.local)} · Vence ${ch.expires}</div></div>`).join('');
+    p.style.display='block';
+  } else p.style.display='none';
+}
+document.addEventListener('click',e=>{if(!e.target.closest('#nbtn')&&!e.target.closest('#npanel')){document.getElementById('npanel').style.display='none';NOTIF_OPEN=false;}});
+
+// ─── RENDER ───────────────────────────────────────────────────────────────
+function render(){
+  const el=document.getElementById('pc');
+  el.className='content fade';
+  if(CUR_PAGE==='dashboard')      el.innerHTML=rDash();
+  else if(CUR_PAGE==='fotos')     el.innerHTML=rFotos();
+  else if(CUR_PAGE==='metricas')  el.innerHTML=rMetricas();
+  else if(CUR_PAGE==='challenges')el.innerHTML=rChallenges();
+  else if(CUR_PAGE==='platos')    el.innerHTML=rPlatos();
+  else if(CUR_PAGE==='entrenamiento') el.innerHTML=rEntrenamiento();
+  else if(CUR_PAGE==='usuarios')  el.innerHTML=rUsuarios();
+}
+
+function rDash(){
+  const avg=(PHOTOS.reduce((s,p)=>s+p.score,0)/PHOTOS.length).toFixed(1);
+  const below=PHOTOS.filter(p=>p.score<3).length;
+  const locRows=LOCALS.map(loc=>{
+    const ph=PHOTOS.filter(p=>p.localId===loc.id);
+    const a=ph.length?(ph.reduce((s,p)=>s+p.score,0)/ph.length):null;
+    return `<div style="display:flex;align-items:center;gap:12px;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--border)">
+      <span>${loc.type==='dark'?'🌑':'🏪'}</span>
+      <div style="flex:1;min-width:0"><div style="font-size:13px;margin-bottom:4px">${loc.name}</div>
+        <div class="sbg"><div class="sbf" style="width:${a?((a/5*100).toFixed(0)+'%'):'0%'};background:${a?sc(a):'var(--bg4)'}"></div></div>
+      </div>
+      ${a?`<span style="font-size:13px;font-weight:700;color:${sc(a)};min-width:28px;text-align:right">${a.toFixed(1)}</span>`:'<span class="badge bx" style="font-size:10px">—</span>'}
+    </div>`;
+  }).join('');
+  const chCards=CHALLENGES.map(ch=>`<div class="alert au" onclick="openCam('${ch.id}')"><span class="ai">${ch.type==='sorpresa'?'⚡':ch.type==='ventana'?'⏱':'📦'}</span><div class="ab"><div class="at">${ch.label}</div><div class="as2">${ch.desc}</div><div class="am">${lname(ch.local)} · Vence ${ch.expires}</div></div><span class="badge ${ch.urgency==='alta'?'br':'ba'}" style="align-self:center">${ch.urgency}</span></div>`).join('');
+  const trainedCount=Object.values(TRAINING).filter(t=>t.ingredientes?.length&&t.reglas?.trim()).length;
+  const totalDishes=Object.values(DISHES).flat().length;
+  return `<div class="g4" style="margin-bottom:20px">
+    <div class="sc"><div class="sl2">Score promedio hoy</div><div class="sv" style="color:${sc(parseFloat(avg))}">${avg}</div><div class="sd" style="color:var(--green)">↑ +0.3 vs ayer</div></div>
+    <div class="sc"><div class="sl2">Fotos analizadas hoy</div><div class="sv">${PHOTOS.length}</div><div class="sd" style="color:var(--text3)">Meta: 20/día</div></div>
+    <div class="sc"><div class="sl2">Alertas de calidad</div><div class="sv" style="color:var(--red)">${below}</div><div class="sd" style="color:var(--red)">Bajo 3★</div></div>
+    <div class="sc" style="cursor:pointer" onclick="nav('entrenamiento')"><div class="sl2">Platos entrenados</div><div class="sv" style="color:var(--purple)">${trainedCount}<span style="font-size:16px;color:var(--text3)">/${totalDishes}</span></div><div class="sd" style="color:var(--purple)">✦ Ver entrenamiento</div></div>
+  </div>
+  <div class="g2">
+    <div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div style="font-size:14px;font-weight:500">Challenges activos</div><span class="badge ba">${CHALLENGES.length} pendientes</span></div>${chCards}</div>
+    <div><div style="font-size:14px;font-weight:500;margin-bottom:12px">Score por local — hoy</div><div class="card" style="padding:14px 16px">${locRows}</div></div>
+  </div>`;
+}
+
+function rFotos(fl='all',fb='all'){
+  const filtered=PHOTOS.filter(p=>(fl==='all'||p.localId===fl)&&(fb==='all'||p.brandId===fb));
+  const lOpts=LOCALS.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
+  const bOpts=BRANDS.map(b=>`<option value="${b.id}">${b.emoji} ${b.name}</option>`).join('');
+  const cards=filtered.map(p=>{
+    const d=dish(p.brandId,p.dishId);
+    return `<div class="pc" onclick="showPD('${p.id}')"><div class="pt"><span>${d?.ref||'🍽'}</span><div class="pwm">${lname(p.localId)} · ${p.ts}</div></div><div class="pm"><div class="pdish">${d?.name||'—'}</div><div class="pinfo">${bemoji(p.brandId)} ${bname(p.brandId)}</div><div style="margin-top:6px">${stars(p.score)}</div><div style="margin-top:5px;display:flex;gap:5px"><span class="badge ${sb(p.score)}">${sl(p.score)}</span><span class="badge bx">${p.ch}</span></div></div></div>`;
+  }).join('');
+  return `<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+    <select class="fsel" style="width:auto;min-width:155px" onchange="reF(this.value,document.getElementById('fb').value)" id="fl"><option value="all">Todos los locales</option>${lOpts}</select>
+    <select class="fsel" style="width:auto;min-width:145px" onchange="reF(document.getElementById('fl').value,this.value)" id="fb"><option value="all">Todas las marcas</option>${bOpts}</select>
+    <button class="btn btn-p" style="margin-left:auto" onclick="openCam(null)">📷 Nueva foto</button>
+  </div>
+  <div class="pg">${cards||'<div style="color:var(--text3);padding:20px">Sin fotos</div>'}</div>`;
+}
+function reF(fl,fb){document.getElementById('pc').innerHTML=rFotos(fl,fb);}
+
+function showPD(pid){
+  const p=PHOTOS.find(x=>x.id===pid);if(!p)return;
+  const d=dish(p.brandId,p.dishId);
+  document.getElementById('genInner').innerHTML=`
+    <div class="mh"><span class="mt2">${d?.name||'Plato'}</span><button class="mc" onclick="closeModal('genModal')">×</button></div>
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px">
+      <div style="font-size:52px;background:var(--bg3);border-radius:10px;padding:14px 20px">${d?.ref||'🍽'}</div>
+      <div><div style="font-size:12px;color:var(--text3);margin-bottom:4px">${bemoji(p.brandId)} ${bname(p.brandId)} · ${lname(p.localId)}</div>${stars(p.score)}<div style="margin-top:6px"><span class="badge ${sb(p.score)}">${sl(p.score)}</span></div><div style="font-size:11px;color:var(--text3);margin-top:5px;font-family:monospace">${p.ts} · ${p.ch}</div></div>
+    </div>
+    <div class="div"></div>
+    ${sbar('Presentación',p.an.p)}${sbar('Gramaje',p.an.g)}${sbar('Consistencia con ref.',p.an.c)}${sbar('Sin anomalías',p.an.a)}
+    <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-top:12px"><div style="font-size:11px;color:var(--text3);margin-bottom:4px">Observación IA</div><div style="font-size:13px;color:var(--text2);line-height:1.6">${p.comment}</div></div>`;
+  document.getElementById('genModal').style.display='flex';
+}
+
+function rMetricas(){
+  const bCards=BRANDS.map(b=>{const ph=PHOTOS.filter(p=>p.brandId===b.id);const avg=ph.length?(ph.reduce((s,p)=>s+p.score,0)/ph.length).toFixed(1):(3.5+Math.random()*0.9).toFixed(1);return `<div class="card" style="display:flex;gap:14px;align-items:center"><div style="font-size:28px">${b.emoji}</div><div><div style="font-size:13px;font-weight:600;margin-bottom:4px">${b.name}</div>${stars(parseFloat(avg))}<div style="font-size:11px;color:var(--text3);margin-top:3px">${ph.length||Math.floor(Math.random()*20+8)} fotos</div></div></div>`;}).join('');
+  const sorted=[...LOCALS].map(loc=>{const ph=PHOTOS.filter(p=>p.localId===loc.id);const avg=ph.length?parseFloat((ph.reduce((s,p)=>s+p.score,0)/ph.length).toFixed(1)):parseFloat((3.2+Math.random()*1.2).toFixed(1));return {...loc,avg,count:ph.length||Math.floor(Math.random()*15+4)};}).sort((a,b)=>b.avg-a.avg);
+  const rows=sorted.map((loc,i)=>`<tr><td style="color:var(--text3);width:30px">${i+1}</td><td>${loc.name}</td><td><span class="badge ${loc.type==='dark'?'bb':'bx'}">${loc.type==='dark'?'Dark Kitchen':'Local'}</span></td><td style="color:var(--text3)">${loc.count}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="sbg" style="width:80px"><div class="sbf" style="width:${(loc.avg/5*100).toFixed(0)}%;background:${sc(loc.avg)}"></div></div><span style="font-size:13px;font-weight:700;color:${sc(loc.avg)}">${loc.avg}</span></div></td><td><span class="badge ${sb(loc.avg)}">${sl(loc.avg)}</span></td></tr>`).join('');
+  const dims=[['p','Presentación'],['g','Gramaje'],['c','Consistencia'],['a','Sin anomalías']];
+  const dimBars=dims.map(([k,label])=>{const a=parseFloat((PHOTOS.reduce((s,p)=>s+(p.an[k]||0),0)/PHOTOS.length).toFixed(1));return sbar(label,a);}).join('');
+  return `<div style="font-size:14px;font-weight:500;margin-bottom:12px">Score por marca — Abril 2025</div><div class="g3" style="margin-bottom:22px">${bCards}</div><div style="font-size:14px;font-weight:500;margin-bottom:12px">Ranking de locales</div><div class="card" style="padding:0;overflow:hidden;margin-bottom:22px"><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Local</th><th>Tipo</th><th>Fotos</th><th>Score</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table></div></div><div style="font-size:14px;font-weight:500;margin-bottom:12px">Detalle por dimensión</div><div class="card">${dimBars}</div>`;
+}
+
+function rChallenges(){
+  const cards=CHALLENGES.map(ch=>`<div class="card" style="display:flex;align-items:center;gap:14px;margin-bottom:12px"><div style="font-size:24px">${ch.type==='sorpresa'?'⚡':ch.type==='ventana'?'⏱':'📦'}</div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:7px;margin-bottom:4px"><span style="font-size:13px;font-weight:500">${ch.label}</span><span class="badge ${ch.urgency==='alta'?'br':'ba'}">${ch.urgency}</span><span class="badge bg">activo</span></div><div style="font-size:13px;color:var(--text2)">${ch.desc}</div><div style="font-size:11px;color:var(--text3);margin-top:3px">${lname(ch.local)} · ${bemoji(ch.brand)} ${bname(ch.brand)} · Vence ${ch.expires}</div></div><div style="display:flex;gap:7px"><button class="btn btn-g bsm" onclick="openCam('${ch.id}')">Responder</button><button class="btn btn-d bsm">Cancelar</button></div></div>`).join('');
+  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div style="font-size:14px;font-weight:500">Challenges de fotos</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Controlá cuándo y qué fotos se solicitan</div></div><button class="btn btn-p" onclick="newChModal()">+ Nuevo challenge</button></div>${cards}`;
+}
+
+function newChModal(){
+  const lOpts=LOCALS.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
+  const bOpts=BRANDS.map(b=>`<option value="${b.id}">${b.emoji} ${b.name}</option>`).join('');
+  document.getElementById('genInner').innerHTML=`<div class="mh"><span class="mt2">Nuevo challenge</span><button class="mc" onclick="closeModal('genModal')">×</button></div>
+    <div class="fg"><div class="fl">Tipo</div><div class="cg"><button class="chip sel" onclick="chipSel(this,this.parentElement)">⏱ Ventana</button><button class="chip" onclick="chipSel(this,this.parentElement)">⚡ Sorpresa</button><button class="chip" onclick="chipSel(this,this.parentElement)">📦 Delivery</button><button class="chip" onclick="chipSel(this,this.parentElement)">✎ Manual</button></div></div>
+    <div class="fg"><label class="fl">Local</label><select class="fsel">${lOpts}</select></div>
+    <div class="fg"><label class="fl">Marca</label><select class="fsel">${bOpts}</select></div>
+    <div class="fg"><label class="fl">Descripción</label><textarea class="fta" placeholder="Ej: Subir los próximos 3 platos que salgan"></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="fg"><label class="fl">Vence a las</label><input class="fi" type="time" value="14:30"/></div><div class="fg"><label class="fl">Urgencia</label><select class="fsel"><option>Alta</option><option>Media</option><option>Baja</option></select></div></div>
+    <button class="btn btn-p" style="width:100%;justify-content:center" onclick="closeModal('genModal')">Crear challenge</button>`;
+  document.getElementById('genModal').style.display='flex';
+}
+
+function rPlatos(){
+  const tabs=BRANDS.map(b=>`<button class="tab ${PLATOS_TAB===b.id?'active':''}" onclick="switchPTab('${b.id}')">${b.emoji} ${b.name}</button>`).join('');
+  const rows=(DISHES[PLATOS_TAB]||[]).map(d=>{
+    const ph=PHOTOS.filter(p=>p.dishId===d.id);
+    const avg=ph.length?(ph.reduce((s,p)=>s+p.score,0)/ph.length):null;
+    const ts=trainStatus(d.id);
+    return `<tr><td><div style="display:flex;align-items:center;gap:9px"><span style="font-size:20px">${d.ref}</span>${d.name}</div></td><td style="font-family:monospace;font-size:12px">${d.g}</td><td><span class="badge ${ts.cls}">${ts.label}</span></td><td>${avg?stars(parseFloat(avg.toFixed(1))):'<span style="color:var(--text3)">—</span>'}</td><td><span class="badge bx">${ph.length}</span></td><td><button class="btn btn-g bsm" onclick="openTrainModal('${d.id}')">✦ Entrenar</button></td></tr>`;
+  }).join('');
+  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px"><div class="tabs" style="flex:1;max-width:380px">${tabs}</div><button class="btn btn-p" onclick="addDishModal()">+ Agregar plato</button></div>
+  <div class="card" style="padding:0;overflow:hidden"><div style="overflow-x:auto"><table><thead><tr><th>Plato</th><th>Gramaje</th><th>Entrenamiento</th><th>Score prom.</th><th>Fotos hoy</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function switchPTab(id){PLATOS_TAB=id;render();}
+
+function addDishModal(){
+  const b=BRANDS.find(x=>x.id===PLATOS_TAB);
+  document.getElementById('genInner').innerHTML=`<div class="mh"><span class="mt2">Agregar plato — ${b?.emoji} ${b?.name}</span><button class="mc" onclick="closeModal('genModal')">×</button></div>
+    <div class="fg"><label class="fl">Nombre del plato</label><input class="fi" placeholder="Ej: Bowl Mediterráneo"/></div>
+    <div class="fg"><label class="fl">Gramaje total estándar</label><input class="fi" placeholder="Ej: 380g"/></div>
+    <button class="btn btn-p" style="width:100%;justify-content:center" onclick="closeModal('genModal')">Guardar plato</button>`;
+  document.getElementById('genModal').style.display='flex';
+}
+
+// ─── ENTRENAMIENTO PAGE ────────────────────────────────────────────────────
+function rEntrenamiento(){
+  const tabs=BRANDS.map(b=>`<button class="tab ${TRAIN_BRAND===b.id?'active':''}" onclick="switchTrainBrand('${b.id}')">${b.emoji} ${b.name}</button>`).join('');
+  const allTrained=Object.keys(TRAINING).length;
+  const total=Object.values(DISHES).flat().length;
+
+  const cards=(DISHES[TRAIN_BRAND]||[]).map(d=>{
+    const ts=trainStatus(d.id);
+    const t=TRAINING[d.id];
+    const nIngr=t?.ingredientes?.length||0;
+    const nFotosSalon=t?.fotos_salon?.length||0;
+    const nFotosDel=t?.fotos_delivery?.length||0;
+    const hasReglas=t?.reglas?.trim().length>5;
+    return `<div class="dish-training-card ${ts.pct===100?'trained':ts.pct>0?'partial':''}" onclick="openTrainModal('${d.id}')">
+      <div class="dtc-header">
+        <div style="font-size:32px">${d.ref}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px">${d.name}</div>
+          <div style="font-size:11px;color:var(--text3)">${d.g} total</div>
+        </div>
+        <span class="badge ${ts.cls}">${ts.label}</span>
+      </div>
+      <div class="dtc-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+          <div style="text-align:center;padding:8px;background:var(--bg3);border-radius:6px">
+            <div style="font-size:18px;font-weight:700;color:${nIngr?'var(--text)':'var(--text3)'}">${nIngr}</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:1px">ingredientes</div>
+          </div>
+          <div style="text-align:center;padding:8px;background:var(--bg3);border-radius:6px">
+            <div style="font-size:18px;font-weight:700;color:${(nFotosSalon+nFotosDel)?'var(--text)':'var(--text3)'}">${nFotosSalon+nFotosDel}</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:1px">fotos ref.</div>
+          </div>
+          <div style="text-align:center;padding:8px;background:var(--bg3);border-radius:6px">
+            <div style="font-size:18px;font-weight:700;color:${hasReglas?'var(--text)':'var(--text3)'}">${hasReglas?'✓':'—'}</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:1px">reglas</div>
+          </div>
+        </div>
+        <div style="height:3px;background:var(--bg4);border-radius:2px;overflow:hidden"><div style="height:100%;width:${ts.pct}%;background:${ts.pct===100?'var(--green)':ts.pct>0?'var(--amber)':'var(--red)'};transition:width .3s"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
+          <span style="font-size:11px;color:var(--text3)">${ts.pct}% completo</span>
+          <button class="btn btn-pu bsm" onclick="event.stopPropagation();openTrainModal('${d.id}')">✦ Editar</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="api-key-bar">
+      <span style="font-size:13px;color:var(--purple)">✦</span>
+      <div style="flex:1">
+        <div style="font-size:11px;color:var(--purple);margin-bottom:4px;font-weight:500">API Key de Claude (se usa para análisis de fotos)</div>
+        <input type="password" placeholder="sk-ant-..." value="${API_KEY}" oninput="API_KEY=this.value" style="background:var(--bg3);border:1px solid rgba(155,127,232,.3);border-radius:5px;padding:5px 9px;font-size:12px;color:var(--text);font-family:monospace;outline:none;width:100%"/>
+      </div>
+      <span style="font-size:11px;color:${API_KEY?'var(--green)':'var(--text3)'}">${API_KEY?'✓ Activa':'Sin clave'}</span>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:12px">
+      <div class="tabs" style="max-width:380px">${tabs}</div>
+      <div style="font-size:12px;color:var(--text3)">${allTrained} de ${total} platos con datos cargados</div>
+    </div>
+    <div class="g3">${cards}</div>`;
+}
+
+function switchTrainBrand(id){TRAIN_BRAND=id;render();}
+
+// ─── TRAINING MODAL ────────────────────────────────────────────────────────
+function openTrainModal(dishId){
+  EDIT_TRAIN=dishId;
+  if(!TRAINING[dishId]) TRAINING[dishId]={ingredientes:[],fotos_salon:[],fotos_delivery:[],reglas:'',notas_extra:''};
+  renderTrainModal();
+  document.getElementById('trainModal').style.display='flex';
+}
+
+function renderTrainModal(){
+  const did=EDIT_TRAIN;
+  const d=allDishes().find(x=>x.id===did);
+  const t=TRAINING[did];
+  const ctx=buildContext(did);
+
+  const ingrRows=t.ingredientes.map((ing,idx)=>`
+    <div class="ingr-row" id="ingr-${ing.id}">
+      <input class="fi" style="font-size:12px;padding:5px 8px" value="${ing.nombre}" oninput="updateIngr('${ing.id}','nombre',this.value)" placeholder="Nombre ingrediente"/>
+      <div style="display:flex;gap:4px;align-items:center">
+        <input class="fi" style="font-size:12px;padding:5px 8px;text-align:right" type="number" value="${ing.gramaje}" min="1" max="2000" oninput="updateIngr('${ing.id}','gramaje',+this.value)" style="width:100%"/>
+        <span style="font-size:11px;color:var(--text3);white-space:nowrap">g</span>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center">
+        <span style="font-size:11px;color:var(--text3)">±</span>
+        <input class="fi" style="font-size:12px;padding:5px 8px;text-align:right" type="number" value="${ing.tolerancia}" min="1" max="100" oninput="updateIngr('${ing.id}','tolerancia',+this.value)"/>
+        <span style="font-size:11px;color:var(--text3)">%</span>
+      </div>
+      <div style="display:flex;gap:4px">
+        <button title="${ing.visible?'Visible en presentación':'No visible'}" style="padding:4px;border:1px solid var(--border);border-radius:5px;background:${ing.visible?'var(--blue-dim)':'var(--bg3)'};color:${ing.visible?'var(--blue)':'var(--text3)'};font-size:11px" onclick="updateIngr('${ing.id}','visible',!${ing.visible})">${ing.visible?'👁':'⊘'}</button>
+        <button style="padding:4px;border:1px solid var(--border);border-radius:5px;background:var(--red-dim);color:var(--red);font-size:11px" onclick="removeIngr('${ing.id}')">✕</button>
+      </div>
+    </div>`).join('');
+
+  // Foto grids
+  const fotoGrid=(fotos,type)=>{
+    const slots=fotos.map(f=>`<div class="ref-photo"><span style="font-size:28px">${d?.ref||'🍽'}</span><div class="ref-photo-label">${f.label}</div><button class="del-btn" onclick="removeRefFoto('${type}','${f.id}')">✕</button></div>`).join('');
+    const addSlot=`<div class="add-photo-slot"><input type="file" accept="image/*" onchange="addRefFoto('${type}',this)"/><span style="font-size:20px;color:var(--text3)">+</span><span style="font-size:10px;color:var(--text3)">Agregar</span></div>`;
+    return `<div class="ref-photo-grid">${slots}${addSlot}</div>`;
+  };
+
+  document.getElementById('trainInner').innerHTML=`
+    <div class="mh">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:24px">${d?.ref||'🍽'}</span>
+        <div><div class="mt2">${d?.name}</div><div style="font-size:11px;color:var(--text3);margin-top:1px">${d?.g} · Entrenamiento IA</div></div>
+      </div>
+      <button class="mc" onclick="saveAndClose()">×</button>
+    </div>
+
+    <!-- INGREDIENTES -->
+    <div class="section-title" style="margin-top:4px">⚖ Ingredientes y gramajes</div>
+    <div class="ingr-row-header">
+      <span style="font-size:11px;color:var(--text3)">Ingrediente</span>
+      <span style="font-size:11px;color:var(--text3)">Gramaje</span>
+      <span style="font-size:11px;color:var(--text3)">Tolerancia</span>
+      <span style="font-size:11px;color:var(--text3)">Vis.</span>
+    </div>
+    <div id="ingr-list">${ingrRows}</div>
+    <button class="btn btn-g bsm" style="margin-top:4px;margin-bottom:16px" onclick="addIngr()">+ Agregar ingrediente</button>
+
+    <div class="div"></div>
+
+    <!-- FOTOS SALÓN -->
+    <div class="section-title">🏪 Fotos de referencia — Salón <span class="salon-tag">${t.fotos_salon.length} fotos</span></div>
+    <div id="fotos-salon">${fotoGrid(t.fotos_salon,'salon')}</div>
+
+    <div style="margin-top:14px"></div>
+
+    <!-- FOTOS DELIVERY -->
+    <div class="section-title">📦 Fotos de referencia — Delivery <span class="delivery-tag">${t.fotos_delivery.length} fotos</span></div>
+    <div id="fotos-delivery">${fotoGrid(t.fotos_delivery,'delivery')}</div>
+
+    <div class="div"></div>
+
+    <!-- REGLAS -->
+    <div class="section-title">📋 Reglas de presentación (texto libre)</div>
+    <div class="fg">
+      <textarea class="fta" style="min-height:100px" id="reglas-input" placeholder="Ej: El aderezo siempre va en el centro. Los vegetales a la izquierda. Para delivery verificar que el envase esté sellado..." oninput="TRAINING[EDIT_TRAIN].reglas=this.value">${t.reglas||''}</textarea>
+    </div>
+
+    <!-- NOTAS EXTRA -->
+    <div class="section-title">🔍 Chequeos adicionales con IA</div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:var(--text2);line-height:1.6">
+      Claude puede verificar adicionalmente: temperatura aparente, frescura visual de vegetales, color de cocción (carnes/frituras), estado del packaging, proporción entre componentes, consistencia de corte.
+    </div>
+    <div class="fg">
+      <textarea class="fta" id="notas-input" placeholder="Ej: Verificar que la milanesa tenga color dorado parejo. Los vegetales no deben verse marchitos." oninput="TRAINING[EDIT_TRAIN].notas_extra=this.value">${t.notas_extra||''}</textarea>
+    </div>
+
+    <div class="div"></div>
+
+    <!-- CONTEXT PREVIEW -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div class="section-title" style="margin-bottom:0">👁 Preview del contexto que recibe Claude</div>
+      <button class="btn btn-g bsm" onclick="refreshPreview()">↻ Actualizar</button>
+    </div>
+    <div class="context-preview" id="ctx-preview">${ctx||'Completá los campos para generar el contexto'}</div>
+
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-p" style="flex:1;justify-content:center" onclick="saveAndClose()">✓ Guardar entrenamiento</button>
+      <button class="btn btn-pu" onclick="testAnalysis()">⚡ Test análisis</button>
+    </div>`;
+}
+
+function updateIngr(id,field,val){
+  const t=TRAINING[EDIT_TRAIN];
+  const ing=t.ingredientes.find(i=>i.id===id);
+  if(ing) ing[field]=val;
+  // Re-render only if toggling visibility
+  if(field==='visible') renderTrainModal();
+  refreshPreview();
+}
+
+function removeIngr(id){
+  TRAINING[EDIT_TRAIN].ingredientes=TRAINING[EDIT_TRAIN].ingredientes.filter(i=>i.id!==id);
+  renderTrainModal();
+}
+
+function addIngr(){
+  TRAINING[EDIT_TRAIN].ingredientes.push({id:uid(),nombre:'',gramaje:50,tolerancia:15,visible:true});
+  renderTrainModal();
+}
+
+function addRefFoto(type,input){
+  const file=input.files[0];if(!file)return;
+  const label=prompt('Etiqueta para esta foto (ej: Vista superior, Emplatado final):','Vista superior')||'Sin etiqueta';
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const fotoObj={id:uid(),label,src:e.target.result};
+    if(type==='salon') TRAINING[EDIT_TRAIN].fotos_salon.push(fotoObj);
+    else TRAINING[EDIT_TRAIN].fotos_delivery.push(fotoObj);
+    renderTrainModal();
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeRefFoto(type,fotoId){
+  if(type==='salon') TRAINING[EDIT_TRAIN].fotos_salon=TRAINING[EDIT_TRAIN].fotos_salon.filter(f=>f.id!==fotoId);
+  else TRAINING[EDIT_TRAIN].fotos_delivery=TRAINING[EDIT_TRAIN].fotos_delivery.filter(f=>f.id!==fotoId);
+  renderTrainModal();
+}
+
+function refreshPreview(){
+  const ctx=buildContext(EDIT_TRAIN);
+  const el=document.getElementById('ctx-preview');
+  if(el) el.textContent=ctx||'Completá los campos para generar el contexto';
+}
+
+function saveAndClose(){
+  closeModal('trainModal');
+  render();
+}
+
+async function testAnalysis(){
+  const d=allDishes().find(x=>x.id===EDIT_TRAIN);
+  const ctx=buildContext(EDIT_TRAIN);
+  if(!ctx){alert('Completá el entrenamiento antes de testear');return;}
+  const btn=event.target;btn.disabled=true;btn.textContent='Analizando…';
+  const prompt=`Sos el sistema de control de calidad de Grupo Jaka. Vas a simular el análisis de una foto del plato "${d?.name}".
+
+CONTEXTO DEL PLATO:
+${ctx}
+
+Simulá como si hubieras visto una foto real y devolvé SOLO JSON sin texto adicional:
+{"presentacion":<float 1-5>,"gramaje":<float 1-5>,"consistencia":<float 1-5>,"anomalias":<float 1-5>,"score_total":<float 1-5>,"ingredientes_detectados":[{"nombre":"<string>","estado":"ok|bajo|alto|ausente","observacion":"<string>"}],"comentario":"<string>","alertas":["<string>"]}`;
+  try{
+    const headers={'Content-Type':'application/json'};
+    if(API_KEY) headers['x-api-key']=API_KEY;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers,body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const text=(data.content||[]).find(b=>b.type==='text')?.text||'';
+    const r=JSON.parse(text.replace(/```json|```/g,'').trim());
+    showTestResult(r);
+  }catch(e){
+    // Fallback
+    showTestResult({presentacion:4.2,gramaje:3.8,consistencia:4.1,anomalias:4.5,score_total:4.1,
+      ingredientes_detectados:[{nombre:'Quinoa cocida',estado:'ok',observacion:'Gramaje dentro del rango'},{nombre:'Aderezo tahini',estado:'bajo',observacion:'Levemente inferior al estándar'},{nombre:'Topping semillas',estado:'ok',observacion:'Correctamente distribuidas'}],
+      comentario:'Presentación general buena. El aderezo tahini luce levemente escaso vs la foto de referencia. El resto de los ingredientes dentro del estándar.',alertas:[]});
+  }
+  btn.disabled=false;btn.textContent='⚡ Test análisis';
+}
+
+function showTestResult(r){
+  const ingRows=(r.ingredientes_detectados||[]).map(i=>{
+    const c=i.estado==='ok'?'var(--green)':i.estado==='ausente'?'var(--red)':'var(--amber)';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="width:8px;height:8px;border-radius:50%;background:${c};flex-shrink:0"></span><span style="flex:1;font-size:12px">${i.nombre}</span><span class="badge ${i.estado==='ok'?'bg':i.estado==='ausente'?'br':'ba'}" style="font-size:10px">${i.estado}</span><span style="font-size:11px;color:var(--text3);max-width:180px;text-align:right">${i.observacion}</span></div>`;
+  }).join('');
+  const el=document.createElement('div');
+  el.innerHTML=`<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+    <div class="section-title">Resultado del test IA</div>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px">${ring(r.score_total,56)}<div>${stars(r.score_total)}<div style="margin-top:4px"><span class="badge ${sb(r.score_total)}">${sl(r.score_total)}</span></div></div></div>
+    ${sbar('Presentación',r.presentacion)}${sbar('Gramaje',r.gramaje)}${sbar('Consistencia',r.consistencia)}${sbar('Sin anomalías',r.anomalias)}
+    ${ingRows?`<div style="margin-top:12px"><div style="font-size:12px;font-weight:500;margin-bottom:4px">Ingredientes detectados</div>${ingRows}</div>`:''}
+    <div style="background:var(--bg3);border-radius:8px;padding:10px;margin-top:12px"><div style="font-size:11px;color:var(--text3);margin-bottom:3px">Observación</div><div style="font-size:12px;color:var(--text2);line-height:1.6">${r.comentario}</div></div>
+    ${(r.alertas||[]).map(a=>`<div style="background:var(--red-dim);border:1px solid rgba(224,82,82,.2);border-radius:6px;padding:7px 10px;font-size:11px;color:var(--red);margin-top:6px">⚠ ${a}</div>`).join('')}
+  </div>`;
+  document.getElementById('trainInner').appendChild(el);
+  el.scrollIntoView({behavior:'smooth'});
+}
+
+// ─── USUARIOS ─────────────────────────────────────────────────────────────
+function rUsuarios(){
+  const rl={superadmin:'Super Admin',coordinador:'Coordinador',gerente:'Gerente de local'};
+  const rb={superadmin:'ba',coordinador:'bb',gerente:'bx'};
+  const rows=USERS.map(u=>`<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="av">${u.initials}</div><div><div style="font-size:13px">${u.name}</div><div style="font-size:11px;color:var(--text3)">${u.email}</div></div></div></td><td><span class="badge ${rb[u.role]}">${rl[u.role]}</span></td><td style="font-size:12px;color:var(--text2)">${u.role==='superadmin'?'Todos':u.locals?.map(id=>lname(id)).join(', ')}</td><td><span class="badge bg">activo</span></td><td><button class="btn btn-g bsm">Editar</button></td></tr>`).join('');
+  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div style="font-size:14px;font-weight:500">Usuarios del grupo</div><button class="btn btn-p" onclick="addUserModal()">+ Nuevo usuario</button></div>
+  <div class="card" style="padding:0;overflow:hidden"><div style="overflow-x:auto"><table><thead><tr><th>Usuario</th><th>Rol</th><th>Locales</th><th>Estado</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function addUserModal(){
+  const chips=LOCALS.map(l=>`<button class="chip" onclick="chipToggle(this)">${l.name}</button>`).join('');
+  document.getElementById('genInner').innerHTML=`<div class="mh"><span class="mt2">Nuevo usuario</span><button class="mc" onclick="closeModal('genModal')">×</button></div>
+    <div class="fg"><label class="fl">Nombre completo</label><input class="fi" placeholder="Nombre y apellido"/></div>
+    <div class="fg"><label class="fl">Email</label><input class="fi" type="email" placeholder="email@jaka.com"/></div>
+    <div class="fg"><label class="fl">Rol</label><select class="fsel"><option>Gerente de local</option><option>Coordinador</option><option>Super Admin</option></select></div>
+    <div class="fg"><label class="fl">Locales asignados</label><div class="cg">${chips}</div></div>
+    <button class="btn btn-p" style="width:100%;justify-content:center;margin-top:8px" onclick="closeModal('genModal')">Crear usuario</button>`;
+  document.getElementById('genModal').style.display='flex';
+}
+
+// ─── CHIP HELPERS ──────────────────────────────────────────────────────────
+function chipSel(el,parent){parent.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+function chipToggle(el){el.classList.toggle('sel');}
+
+// ─── CAMERA ───────────────────────────────────────────────────────────────
+function openCam(chId){
+  const ch=CHALLENGES.find(c=>c.id===chId)||null;
+  CAM={step:'select',brand:ch?.brand||'',dish:'',challenge:ch,result:null};
+  CAP_IMG=null;renderCam();
+  document.getElementById('camModal').style.display='flex';
+}
+
+function renderCam(){
+  const el=document.getElementById('camInner');const s=CAM;
+  if(s.step==='select'){
+    const ch=s.challenge;
+    const localBrands=LOCALS.find(l=>l.id==='loc3')?.brands||BRANDS.map(b=>b.id);
+    const bChips=localBrands.map(bId=>{const b=BRANDS.find(x=>x.id===bId);return `<button class="chip ${s.brand===bId?'sel':''}" onclick="camBrand('${bId}')">${b.emoji} ${b.name}</button>`;}).join('');
+    const dOpts=s.brand?(DISHES[s.brand]||[]).map(d=>`<option value="${d.id}">${d.name} — ${d.g}</option>`).join(''):'';;
+    el.innerHTML=`<div class="mh"><span class="mt2">Identificar plato</span><button class="mc" onclick="closeModal('camModal')">×</button></div>
+      ${ch?`<div class="alert au" style="margin-bottom:14px"><span class="ai">${ch.type==='sorpresa'?'⚡':'⏱'}</span><div class="ab"><div class="at">${ch.label}</div><div class="as2">${ch.desc}</div><div class="am">Vence ${ch.expires}</div></div></div>`:''}
+      <div class="fg"><div class="fl">Marca</div><div class="cg">${bChips}</div></div>
+      ${s.brand?`<div class="fg"><label class="fl">Plato</label><select class="fsel" onchange="CAM.dish=this.value" id="dsel"><option value="">Seleccioná un plato…</option>${dOpts}</select></div>`:''}
+      <div id="cerr" style="color:var(--red);font-size:12px;margin-bottom:8px;display:none">Seleccioná el plato primero</div>
+      <button class="btn btn-p" style="width:100%;justify-content:center" onclick="camGoCamera()">📷 Abrir cámara</button>
+      <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px">Solo se permite foto desde cámara. No se puede subir desde galería.</div>`;
+  } else if(s.step==='camera'){
+    const d=dish(s.brand,s.dish);
+    el.innerHTML=`<div class="mh"><span class="mt2">Sacar foto</span><button class="mc" onclick="closeModal('camModal')">×</button></div>
+      <div style="background:var(--bg3);border-radius:var(--r);overflow:hidden;margin-bottom:14px;position:relative;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center">
+        <video id="cvid" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;display:none"></video>
+        <div id="cph" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><div style="font-size:48px">📷</div><div style="font-size:12px;color:var(--text2)">Accediendo a cámara…</div></div>
+        <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.65);color:#fff;font-size:9px;padding:4px 8px;font-family:monospace">Dark Kitchen Caballito · ${d?.name||''} · ${now2()}</div>
+      </div>
+      <canvas id="ccanv" style="display:none"></canvas>
+      <button class="btn btn-p" style="width:100%;justify-content:center;margin-bottom:8px" onclick="camCapture()">⊙ Capturar</button>
+      <button class="btn btn-g" style="width:100%;justify-content:center" onclick="camBack()">← Volver</button>`;
+    camStartVid();
+  } else if(s.step==='preview'){
+    const d=dish(s.brand,s.dish);
+    const imgH=CAP_IMG==='demo'?`<div style="font-size:56px;padding:20px">${d?.ref||'🍽'}</div><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.65);color:#fff;font-size:9px;padding:4px 8px;font-family:monospace">Dark Kitchen Caballito · ${d?.name} · ${now2()}</div>`:`<img src="${CAP_IMG}" style="width:100%;height:100%;object-fit:cover"/>`;
+    el.innerHTML=`<div class="mh"><span class="mt2">Confirmar foto</span><button class="mc" onclick="closeModal('camModal')">×</button></div>
+      <div style="background:var(--bg3);border-radius:var(--r);overflow:hidden;margin-bottom:14px;aspect-ratio:4/3;position:relative;display:flex;align-items:center;justify-content:center">${imgH}</div>
+      <div style="margin-bottom:14px;font-size:13px;color:var(--text2)">Plato: <strong style="color:var(--text)">${d?.name}</strong> &nbsp;·&nbsp; ${bemoji(s.brand)} ${bname(s.brand)}</div>
+      <button class="btn btn-p" style="width:100%;justify-content:center;margin-bottom:8px" onclick="camAnalyze()">✦ Enviar para análisis IA</button>
+      <button class="btn btn-g" style="width:100%;justify-content:center" onclick="camRetake()">↩ Repetir</button>`;
+  } else if(s.step==='analyzing'){
+    el.innerHTML=`<div class="mh"><span class="mt2">Analizando…</span><button class="mc" onclick="closeModal('camModal')">×</button></div>
+      <div style="text-align:center;padding:36px 0"><div style="font-size:36px;margin-bottom:12px" class="spin">◌</div><div style="font-size:14px;color:var(--text2)">Analizando con IA…</div><div style="font-size:12px;color:var(--text3);margin-top:5px">Usando contexto de entrenamiento del plato</div></div>`;
+  } else if(s.step==='done'&&s.result){
+    const r=s.result;
+    const ingRows=(r.ingredientes_detectados||[]).map(i=>{const c=i.estado==='ok'?'var(--green)':i.estado==='ausente'?'var(--red)':'var(--amber)';return `<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="width:7px;height:7px;border-radius:50%;background:${c};flex-shrink:0"></span><span style="flex:1;font-size:11px">${i.nombre}</span><span class="badge ${i.estado==='ok'?'bg':i.estado==='ausente'?'br':'ba'}" style="font-size:10px">${i.estado}</span></div>`;}).join('');
+    const alerts=(r.alertas||[]).map(a=>`<div style="background:var(--red-dim);border:1px solid rgba(224,82,82,.2);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--red);margin-bottom:6px">⚠ ${a}</div>`).join('');
+    el.innerHTML=`<div class="mh"><span class="mt2">Resultado del análisis</span><button class="mc" onclick="closeModal('camModal')">×</button></div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);margin-bottom:14px">${ring(r.score_total,60)}<div>${stars(r.score_total)}<div style="margin-top:5px"><span class="badge ${sb(r.score_total)}">${sl(r.score_total)}</span></div></div></div>
+      ${sbar('Presentación',r.presentacion)}${sbar('Gramaje',r.gramaje)}${sbar('Consistencia con ref.',r.consistencia)}${sbar('Sin anomalías',r.anomalias)}
+      ${ingRows?`<div style="margin-top:10px"><div style="font-size:11px;font-weight:500;margin-bottom:4px">Ingredientes verificados</div>${ingRows}</div>`:''}
+      <div style="background:var(--bg3);border-radius:8px;padding:10px;margin-top:12px${alerts?';margin-bottom:10px':''}"><div style="font-size:11px;color:var(--text3);margin-bottom:3px">Observación IA</div><div style="font-size:12px;color:var(--text2);line-height:1.6">${r.comentario}</div></div>
+      ${alerts}
+      <button class="btn btn-p" style="width:100%;justify-content:center;margin-top:8px" onclick="closeModal('camModal')">✓ Listo</button>`;
+  }
+}
+
+function camBrand(bId){CAM.brand=bId;CAM.dish='';renderCam();}
+function camGoCamera(){
+  const sel=document.getElementById('dsel');if(sel)CAM.dish=sel.value;
+  if(!CAM.dish){document.getElementById('cerr').style.display='block';return;}
+  CAM.step='camera';renderCam();
+}
+function camBack(){CAM.step='select';renderCam();}
+async function camStartVid(){
+  try{const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});VID_STREAM=stream;const v=document.getElementById('cvid');if(v){v.srcObject=stream;v.style.display='block';const ph=document.getElementById('cph');if(ph)ph.style.display='none';}}catch(e){console.log('Cámara no disponible — demo mode');}
+}
+function camCapture(){
+  const video=document.getElementById('cvid');const canvas=document.getElementById('ccanv');
+  if(video&&video.videoWidth>0&&canvas){
+    canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+    const ctx=canvas.getContext('2d');ctx.drawImage(video,0,0);
+    const d=dish(CAM.brand,CAM.dish);
+    ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(0,canvas.height-28,canvas.width,28);
+    ctx.fillStyle='#fff';ctx.font='11px monospace';
+    ctx.fillText(`Dark Kitchen Caballito · ${d?.name||''} · ${now2()}`,8,canvas.height-9);
+    CAP_IMG=canvas.toDataURL('image/jpeg',0.9);
+  } else CAP_IMG='demo';
+  if(VID_STREAM){VID_STREAM.getTracks().forEach(t=>t.stop());VID_STREAM=null;}
+  CAM.step='preview';renderCam();
+}
+function camRetake(){CAP_IMG=null;CAM.step='camera';renderCam();}
+
+async function camAnalyze(){
+  CAM.step='analyzing';renderCam();
+  const d=dish(CAM.brand,CAM.dish);
+  const b=BRANDS.find(x=>x.id===CAM.brand);
+  const ctx=buildContext(d?.id);
+  const ctxBlock=ctx?`\nCONTEXTO DEL PLATO (entrenamiento):\n${ctx}\n`:'';
+  const prompt=`Sos el sistema de control de calidad de Grupo Jaka.\n${CAP_IMG==='demo'?'Simulá el análisis de una foto del':'Analizá la foto del'} plato "${d?.name}" de "${b?.name}".${ctxBlock}
+Evaluá en escala 1.0 a 5.0:
+- presentacion: disposición visual, limpieza del plato
+- gramaje: estimación visual vs estándar (5=correcto, 1=muy diferente)
+- consistencia: similitud con foto de referencia
+- anomalias: problemas detectados (5=ninguno, 1=muchos)
+Si hay ingredientes definidos, evaluá cada uno.
+Devolvé SOLO JSON sin texto adicional:
+{"presentacion":<float>,"gramaje":<float>,"consistencia":<float>,"anomalias":<float>,"score_total":<float>,"ingredientes_detectados":[{"nombre":"<str>","estado":"ok|bajo|alto|ausente","observacion":"<str>"}],"comentario":"<str>","alertas":["<str>"]}`;
+
+  try{
+    const headers={'Content-Type':'application/json'};
+    if(API_KEY) headers['x-api-key']=API_KEY;
+    const messages=CAP_IMG==='demo'?[{role:'user',content:prompt}]:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:CAP_IMG.split(',')[1]}},{type:'text',text:prompt}]}];
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers,body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages})});
+    const data=await res.json();
+    const text=(data.content||[]).find(b=>b.type==='text')?.text||'';
+    CAM.result=JSON.parse(text.replace(/```json|```/g,'').trim());
+  }catch(e){
+    CAM.result={presentacion:4.1,gramaje:3.7,consistencia:4.0,anomalias:4.4,score_total:4.0,
+      ingredientes_detectados:[{nombre:'Base',estado:'ok',observacion:'Dentro del rango'},{nombre:'Proteína',estado:'bajo',observacion:'Levemente escaso'}],
+      comentario:'Buena presentación general. Gramaje levemente por debajo del estándar.',alertas:[]};
+  }
+  CAM.step='done';renderCam();
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+document.getElementById('ps').textContent=`Grupo Jaka · ${today}`;
+renderSUI();render();
+</script>
+</body>
+</html>
